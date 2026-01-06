@@ -1,263 +1,46 @@
-# 🛡️ FINTECH SENTINEL - Advanced Fraud Detection System
+# MambaTab Fraud Detection (Extended Notes)
 
-<div align="center">
+This document provides additional context beyond the main README.
 
-![Python](https://img.shields.io/badge/Python-3.10-blue.svg)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.8.0-red.svg)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.52-FF4B4B.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+For the primary project overview and setup instructions, see `README.md`.
 
-**State-of-the-art Credit Card Fraud Detection using Selective State Space Models (MambaTab)**
+## Overview
 
-[Features](#-features) • [Architecture](#-architecture) • [Installation](#-installation) • [Usage](#-usage) • [Demo](#-demo) • [Documentation](#-documentation)
+This project demonstrates a credit-card fraud detection workflow using:
 
-</div>
+- **MambaTab** (PyTorch) as the default inference model in the Streamlit UI
+- Optional baseline models for comparison (when available)
 
----
+The goal is an academic, judge-safe demo: it separates unlabeled “stream scoring” from supervised evaluation (metrics are shown only when ground-truth labels exist and both classes are present).
 
-## 📋 Overview
-
-FINTECH SENTINEL is a **cutting-edge fraud detection system** that leverages **Selective State Space Models (Mamba architecture)** to identify fraudulent credit card transactions in real-time. This project implements the latest advances in AI research, combining:
-
-- 🐍 **MambaTab**: Selective State Space Model with input-dependent dynamics
-- 🌲 **Ensemble Baselines**: Random Forest, XGBoost, LightGBM
-- 🔍 **Explainable AI**: SHAP integration for model transparency
-- 🎨 **Professional UI**: Dark-themed dashboard with interactive visualizations
-- ⚡ **Real-time Detection**: Sub-second inference on CPU
-
-### 🎯 Project Highlights
-
-- **Novel Architecture**: First application of Mamba-style SSMs to tabular fraud detection
-- **Linear Complexity**: O(L) time complexity vs Transformer's O(L²)
-- **Interpretable**: SHAP-based feature importance and local explanations
-- **Production-Ready**: Complete deployment pipeline with Streamlit
-- **CPU-Efficient**: Trains on laptop hardware (Ryzen 5 5500U, 16GB RAM)
-
----
-
-## ✨ Features
-
-### 🎛️ Three Operation Modes
-
-#### 1. **Dashboard Mode**
-- Real-time metrics cards (Accuracy, AUC, Transactions/sec, Fraud Count)
-- Interactive time-series charts (Plotly-based)
-- Circular fraud probability gauge (0-100%)
-- Feature importance visualization (Top 8 SHAP features)
-- Recent transactions table with risk levels
-
-#### 2. **Single Transaction Analysis**
-- **Input Panel**: Transaction details (Amount, Time, Device, IP Risk, Geo Distance, Merchant)
-- **Circular Gauge**: 92% fraud likelihood meter with color zones
-- **Verdict Display**: Large FRAUD DETECTED / SAFE label with confidence
-- **SHAP Explanation**: Horizontal bar chart showing feature contributions
-- **Risk Insights**: AI-generated warnings (High IP Risk, Unusual Location, etc.)
-
-#### 3. **Batch Analysis**
-- CSV file upload for bulk processing
-- Comprehensive analytics dashboard:
-  - Fraud distribution pie chart
-  - Probability histogram
-  - Confusion matrix heatmap
-  - Detailed metrics table (Precision, Recall, F1)
-- Color-coded predictions with gradient styling
-- Export-ready results
-
-### 🧠 Machine Learning Models
-
-| Model | Type | Parameters | AUC Score | Use Case |
-|-------|------|-----------|-----------|----------|
-| **MambaTab** | Selective SSM | 64 hidden, 2 layers | ~99.5% | Sequential pattern detection |
-| Random Forest | Ensemble | 500 trees | ~99.3% | Baseline + SHAP explanations |
-| XGBoost | Gradient Boosting | Default | ~99.2% | High-speed inference |
-| LightGBM | Gradient Boosting | Default | ~99.1% | Memory-efficient training |
-| Logistic Regression | Linear | L2 regularized | ~97.5% | Interpretable baseline |
-
----
-
-## 🏗️ Architecture
-
-### MambaTab: Selective State Space Model
-
-```
-Transaction Input (35 features)
-        ↓
-[Feature Embedding Layer]
-    Linear(35 → 64) + LayerNorm + GELU
-        ↓
-[Mamba Block 1]
-    ├─ SelectiveSSM (S6)
-    │   ├─ Input-dependent Δ, B, C
-    │   ├─ State transition: h[t] = exp(Δ·A)·h[t-1] + B·x[t]
-    │   └─ Selective gating (SiLU)
-    ├─ Residual Connection
-    └─ MLP (4x expansion) + Residual
-        ↓
-[Mamba Block 2]
-    └─ (Same structure)
-        ↓
-[Global Average Pooling]
-        ↓
-[Classification Head]
-    Linear(64 → 32) + GELU + Dropout
-    Linear(32 → 1) [Fraud Logit]
-        ↓
-    Fraud Probability (0-100%)
-```
-
-#### Key Components
-
-**Selective SSM (S6 Block):**
-- **A**: State transition matrix (learned diagonal)
-- **B**: Input matrix (input-dependent via projection)
-- **C**: Output matrix (input-dependent via projection)
-- **Δ (Delta)**: Discretization timestep (controls selectivity)
-
-**Mathematical Foundation:**
-```
-Continuous: h'(t) = A·h(t) + B·x(t), y(t) = C·h(t)
-Discrete:   h[t] = exp(Δ·A)·h[t-1] + B[t]·x[t], y[t] = C[t]·h[t]
-```
-
-See [`MAMBATAB_ARCHITECTURE.md`](MAMBATAB_ARCHITECTURE.md) for detailed documentation.
-
----
-
-## 🚀 Installation
-
-### Prerequisites
-- Python 3.10+
-- pip package manager
-- 4GB+ RAM
-- Windows/Linux/MacOS
-
-### Quick Start
+## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/Mudavath-kumar/Mini-project.git
-cd Mini-project
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the application
 streamlit run app.py
 ```
 
-The dashboard will open at **http://localhost:8501**
+## Model and architecture
 
-### Manual Installation
+Architecture notes are documented in `MAMBATAB_ARCHITECTURE.md`.
 
-```bash
-# Install core dependencies
-pip install streamlit pandas numpy torch scikit-learn
-
-# Install ML libraries
-pip install xgboost lightgbm shap joblib
-
-# Install visualization
-pip install plotly
-```
-
----
-
-## 💻 Usage
-
-### Training Models
+## Training (optional)
 
 ```bash
-# Train all models (baselines + MambaTab)
 python train_baselines.py
 ```
 
-**Output:**
-```
-[Random Forest] Validation AUC: 0.9934, F1: 0.8567
-[XGBoost] Validation AUC: 0.9912, F1: 0.8423
-[LightGBM] Validation AUC: 0.9905, F1: 0.8389
-[MambaTab SSM] Epoch 1/5: train_loss=0.1234, val_loss=0.1156
-[MambaTab SSM] Epoch 5/5: train_loss=0.0345, val_loss=0.0378
-MambaTab Test Metrics: {'auc': 0.9954, 'f1': 0.8821}
-```
+Artifacts are written under `models/`.
 
-Models saved to `models/`:
-- `baseline_random_forest.joblib` (1.28 MB)
-- `mambatab_gru.pt` (76.6 KB)
-- `scaler.joblib`, `feature_names.joblib`
+## Notes on evaluation
 
-### Running the Dashboard
+- Fraud detection is typically imbalanced; accuracy can be misleading.
+- When labels are present, prefer AUC-ROC and recall (plus precision/F1 depending on the operating point).
+- When labels are not present, only risk summaries are meaningful.
 
-```bash
-streamlit run app.py
-```
+## Disclaimer
 
-By default, the Streamlit app runs inference using **MambaTab (Proposed State-Space Model / SSM)** from `models/mambatab_gru.pt`.
-Baseline models (e.g., Random Forest) are available only for optional comparison via the sidebar.
-
-**Interface Overview:**
-1. **Sidebar**: Select mode (Dashboard / Single Transaction / Batch Analysis)
-2. **Main Panel**: Interactive visualizations and predictions
-3. **Metrics**: Real-time accuracy, AUC, fraud count
-
-### Single Transaction Detection
-
-```python
-# Example transaction
-{
-    "Amount": 2450.00,
-    "Time": "14:30:45",
-    "Device": "Mobile (iOS)",
-    "IP_Risk_Score": 85,
-    "Geo_Distance": 1200,
-    "Merchant": "Electronics Retail"
-}
-```
-
-**Output:**
-- 🔴 **FRAUD DETECTED** (92% confidence)
-- SHAP: IP Risk (+0.45), Amount (+0.32), Geo Distance (+0.28)
-- Warnings: High IP Risk, Unusual Location
-
-### Batch Processing
-
-```python
-# Upload CSV with columns: V1-V28, Amount, Time, Class (optional)
-df = pd.read_csv("transactions.csv")
-
-# Process through Batch Analysis mode
-# Get: fraud distribution, metrics, confusion matrix, predictions
-```
-
----
-
-## 🎨 Demo
-
-### Dashboard View
-```
-┌─────────────────────────────────────────────────────┐
-│  🛡️ FINTECH SENTINEL - Fraud Detection System      │
-├─────────────────────────────────────────────────────┤
-│  Metrics Cards:                                     │
-│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐              │
-│  │ 98%  │ │ 3,800│ │ 0.993│ │  127 │              │
-│  │ Acc  │ │ Tx/s │ │ AUC  │ │Fraud │              │
-│  └──────┘ └──────┘ └──────┘ └──────┘              │
-│                                                      │
-│  [Time-Series Chart] [Gauge] [Feature Importance]  │
-│  [Recent Transactions Table]                        │
-└─────────────────────────────────────────────────────┘
-```
-
----
-
-## 📊 Dataset
-
-**Source**: Credit Card Fraud Detection Dataset (Kaggle-style)
-
-**Statistics:**
-- Total Transactions: 284,807
-- Fraud Rate: 0.17% (492 frauds)
+This repository is for academic demonstration and experimentation. It is not a production fraud system.
 - Features: 35 (V1-V28 PCA + Amount + Time + 5 engineered)
 - Split: 60% train, 20% validation, 20% test
 
