@@ -35,8 +35,7 @@ Artifacts are written under `models/`.
 ## Notes on evaluation
 
 - Fraud detection is typically imbalanced; accuracy can be misleading.
-- When labels are present, prefer AUC-ROC and recall (plus precision/F1 depending on the operating point).
-- When labels are not present, only risk summaries are meaningful.
+
 
 ## Disclaimer
 
